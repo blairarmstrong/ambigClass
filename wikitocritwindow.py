@@ -1,3 +1,5 @@
+var = 'TEST'
+
 from datetime import datetime
 startTime = datetime.now();
 
@@ -16,7 +18,6 @@ from nltk import ConcordanceIndex
 
 #load common scripts located in single file to facilitate parallelization
 sys.path.append("./")
-import ambigClassifier_common
 
 
 ########### USER CONFIGURABLE SETTINGS ########################################
