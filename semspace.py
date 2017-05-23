@@ -5,6 +5,9 @@ Created on Mon May 22 13:23:50 2017
 
 @author: caitlin
 """
+####This file creates sendict, which contains the semantic space vectors
+
+
 from datetime import datetime
 startTime = datetime.now();
                         

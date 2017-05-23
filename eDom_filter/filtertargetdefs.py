@@ -9,11 +9,20 @@ import os
 import re
 from nltk import wordpunct_tokenize
 import nltk
+import copy
+import pickle
+#import dill as pickle #need advanced pickling to pickle nltk lamba 
+import numpy as np
 
 ########### USER CONFIGURABLE SETTINGS ########################################
 
 #location of SUBTL word frequency data
 mostfreqfile = "./input/SUBTL_ge1.txt"
+
+sendictfile = '../sendict.p'
+
+defsspacedir='./defsspace/'
+defsspace_fn='defsspace.p'
 
 ###############################################################################
 
@@ -74,7 +83,7 @@ with open(mostfreqfile) as f2:
 for k in defs:
     for j in defs[k]:
         #clean up the file
-        print(defs[k][j])
+#        print(defs[k][j])
 
         #replace the following with the code needed to clean up the definition
         #in a similar way to the original clean up of the file.  Then, replace
@@ -101,6 +110,32 @@ for k in defs:
         #
         defs[k][j] = raw;
 
+defsspace = copy.deepcopy(defs)
+  
+#location of sendict
+sendict = pickle.load(open(sendictfile, "rb")) 
 
-
-
+for k in defsspace:
+    for j in defsspace[k]:
+        #clean up the file
+        print(defsspace[k][j])
+        
+        s = defsspace[k][j]
+        
+        tokens = wordpunct_tokenize(s);
+                                   
+        #open 1, 400 array
+        arr = np.zeros([1, 400]);
+        #load semspace vector
+        
+        
+        #define an zero vector
+        for t in tokens:
+            #arr + semspace vector for t;
+            arr = arr + sendict[t]
+        defsspace[k][j] = arr;
+            
+            
+#pickle defs and sendict
+#pickle.dump(c,open(defs+sendict, 'wb'))  
+pickle.dump(defsspace,open(defsspacedir+defsspace_fn, 'wb'))  
