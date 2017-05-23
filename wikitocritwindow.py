@@ -1,5 +1,3 @@
-var = 'TEST'
-
 from datetime import datetime
 startTime = datetime.now();
 
@@ -12,6 +10,7 @@ import codecs
 import nltk
 import dill as pickle #need advanced pickling to pickle nltk lamba 
 import pathos.multiprocessing as multiprocessing
+import numpy as np
 
 from nltk import ConcordanceIndex
 #adapted from  http://stackoverflow.com/questions/22118136/nltk-find-contexts-of-size-2k-for-a-word
@@ -31,6 +30,7 @@ mostfreqfile = "./input/SUBTL_ge1.txt"
 targFile = "./input/targets.txt"
 critwindowdir = "./critwindows/"
 
+sendictfile = 'sendict.p'
 
 nProcs = 5;
 
@@ -53,7 +53,9 @@ def createConcordances(fname):
     print("Processing file: "+fname)
     
     f = codecs.open(wikidir+fname,"r","utf-8")
+    print(fname)
     raw = f.read();
+    print(fname)
     tokens = wordpunct_tokenize(raw);
     text = nltk.Text(tokens)
     
@@ -114,7 +116,7 @@ def createConcordances(fname):
 
 def critWindows(t):
     print("running target: " + t)
-    
+    sendict = pickle.load(open(sendictfile, "rb"))
     fl = [f for f in listdir(concorddir) if isfile(join(concorddir, f))]
     i = 0;
     
@@ -129,12 +131,39 @@ def critWindows(t):
         #print(l) #lists the concordance in memory
         
         f2 = open(critwindowdir+t+".txt","a")
+        f3 = open(critwindowdir+t+".mat","a")
         j=0;
+        newvec = np.zeros([1, 400]);
+        
         for e in l:
             f2.write(' '.join(e) + "\r\n")
             j=j+1;
-        f2.close();
         
+            for g in e:
+                if g != t:
+                    newvec = newvec+sendict[g]
+            
+            print('\r\n')
+            print(newvec)
+            print(len(newvec[0]))
+            #print(newvec.shape())
+            print('\r\n')
+            
+            
+            newlist=newvec[0].tolist();
+            print('\r\n')
+            
+            print(newlist)
+            print('\r\n')
+            print(len(newlist))
+            
+            newstr = ' '.join(str(h) for h in newlist[0])
+            f3.write(newstr)
+            f3.write('\r\n')
+            
+        
+        f2.close();
+        f3.close();
         i = i+j;
     
     return(t + " occured " + str(i) + " times")
@@ -143,7 +172,6 @@ def critWindows(t):
 ###############################################################################
 #main loop to be executed by master processor
 if __name__=='__main__':     
-
     
     print("\r\n\r\n")
     
@@ -191,7 +219,8 @@ if __name__=='__main__':
     for f in torm:
         if f.endswith(".txt"):
             os.remove(join(critwindowdir,f))
-
+        if f.endswith(".mat"):
+            os.remove(join(critwindowdir,f))
     
     #load list of words to get critical windows for
     targetList = open(targFile).read().splitlines();
