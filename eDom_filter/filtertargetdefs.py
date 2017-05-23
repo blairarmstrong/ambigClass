@@ -1,4 +1,4 @@
-
+ 
 #cleans the processedWords folder so that it only contains the target words
 #listed in the fname file.  This greatly speeds searching of this directory
 #in all future searches.
@@ -7,6 +7,15 @@ import glob
 from shutil import copyfile
 import os
 import re
+from nltk import wordpunct_tokenize
+import nltk
+
+########### USER CONFIGURABLE SETTINGS ########################################
+
+#location of SUBTL word frequency data
+mostfreqfile = "./input/SUBTL_ge1.txt"
+
+###############################################################################
 
 fname = "./input/586AmbiguousWords_-mole-con-rack.txt"
 defdir = './processedWords/'
@@ -55,7 +64,13 @@ for t in targets:
         f.close()
 
 
+mostfreq = [];
+with open(mostfreqfile) as f2:
+    for line in f2:
+        mostfreq.append(line.strip()) 
+        
 #clean up the definition array.
+#j is index of meanings, k is index of number that corresponds to meaning
 for k in defs:
     for j in defs[k]:
         #clean up the file
@@ -64,13 +79,27 @@ for k in defs:
         #replace the following with the code needed to clean up the definition
         #in a similar way to the original clean up of the file.  Then, replace
         #defs[k][j] with the cleaned output.  So, something like:
+                   
+        #load list of words to get critical windows for
+        #targetList = open(targFile).read().splitlines();
 
+        
         s = defs[k][j]
+        
+        tokens = wordpunct_tokenize(s);
+        text = nltk.Text(tokens)
+        
         #clean up s
+        words = [w.lower().strip() for w in text if w.isalpha() and 
+                 len(w) > 1 and 
+          w not in set(nltk.corpus.stopwords.words('english')) and
+          w in mostfreq and
+          w != k]
+        
+        raw = " ".join(words)
         #
         #
-        #
-        defs[k][j] = s;
+        defs[k][j] = raw;
 
 
 
