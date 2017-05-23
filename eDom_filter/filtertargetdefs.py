@@ -8,8 +8,8 @@ from shutil import copyfile
 import os
 
 fname = "./input/586AmbiguousWords_-mole-con-rack.txt"
-defdir = './processedWords/'
-outdir = './targetwords/'
+defdir = './targetwords/'
+outdir = './targetwords2/'
 
 
 with open(fname) as f:
@@ -19,6 +19,5 @@ targets = [x.strip() for x in targets]
 for t in targets:
     print("Processing: " + t )
     for e in  glob.glob(defdir+t+'[.]singleword.[0-9].*'):
-        print("copying")
         copyfile(e,outdir+os.path.basename(e))
 
