@@ -157,7 +157,7 @@ def critWindows(t):
             print('\r\n')
             print(len(newlist))
             
-            newstr = ' '.join(str(h) for h in newlist[0])
+            newstr = ' '.join((f'{h:.6f}') for h in newlist)
             f3.write(newstr)
             f3.write('\r\n')
             
