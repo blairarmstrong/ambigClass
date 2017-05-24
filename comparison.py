@@ -9,8 +9,8 @@ Created on Tue May 23 13:47:13 2017
 #import nltk
 import pickle
 import numpy as np
-import scipy
-from scipy import spatial
+#import scipy
+#from scipy import spatial
 import math
 
 def square_rooted(x):
