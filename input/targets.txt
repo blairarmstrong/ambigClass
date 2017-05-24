@@ -2,3 +2,8 @@ dog
 cat
 wild
 bank
+compound
+bark
+ear
+pie
+tow

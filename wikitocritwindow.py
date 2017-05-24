@@ -32,6 +32,8 @@ critwindowdir = "./critwindows/"
 
 sendictfile = 'sendict.p'
 
+semdim = 300
+
 nProcs = 5;
 
 ###############################################################################   
@@ -133,7 +135,7 @@ def critWindows(t):
         f2 = open(critwindowdir+t+".txt","a")
         f3 = open(critwindowdir+t+".mat","a")
         j=0;
-        newvec = np.zeros([1, 400]);
+        newvec = np.zeros([1, semdim]);
         
         for e in l:
             f2.write(' '.join(e) + "\r\n")

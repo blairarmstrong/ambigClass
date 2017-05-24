@@ -11,8 +11,8 @@ Created on Mon May 22 13:23:50 2017
 from datetime import datetime
 startTime = datetime.now();
 
-#import numpy as np
-#import nltk
+import numpy as np
+import nltk
 import pickle
 
 #location of SUBTL word frequency data

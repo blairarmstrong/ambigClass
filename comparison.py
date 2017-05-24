@@ -28,12 +28,15 @@ def cosine_similarity(x,y):
                         
 #Import dictionary vectors from pickled file (defsspace)
 defsspace = pickle.load(open("./eDom_filter/defsspace/defsspace.p", "rb"))
+outfile = "./output/meaningfreq.txt"
     
-#Import wikipedia .mat files, convert txt to matrix arrays  
+#Import wikipedia .mat files, convert txt to matrix arrays 
+ 
+fout = open(outfile, "w")
 
 ds = {}
 ds['bank'] = defsspace['bank']
-
+ds['compound'] = defsspace['compound']
 defsspace = ds;
 
 for k in defsspace:
@@ -41,32 +44,61 @@ for k in defsspace:
     f=open('./critwindows/'+k+'.mat','r')
     def_arr = np.genfromtxt('./critwindows/'+k+'.mat')
 
+    arr = np.zeros([len(defsspace[k]), len(def_arr)])
+
     for m in defsspace[k]:
         print(defsspace[k][m][0])
         for i in range (0,len(def_arr)):
             #print(i)
             cossim = cosine_similarity(defsspace[k][m][0], def_arr[i])
-            print(cossim)
-        
-        #Need to calculate and save similarity of each word for each entry with cos 
-        #cos (gives value between -1 and 1, see what meaning is closest to 1). 
-        #Two vectors with cosine of 1 have same orientation, 90degrees have similarity of 0, 
-            #opposed have similarity of -1
-        # to round cosine, use format(round(cosine, 3)) where 3 is number of decimals
-        #Come up with scoring regime
-        
-       
-
-    #for k in defsspace
-        #where k is string label ('bank')
-        #open k.mat in other folder that we point it to that stores .mat file for k (bank.mat)
-        #For every line in bank.mat convert into array
-        #Compare array to all of the meaning vectors in k
-        
- #Import wikipedia files from .mat files, will need to convert from txt to matricies
-    #either one line at a time or go in and subscript it (maybe for line in file: cpnvert string into np array
-    #go string to list to np array
+            arr[int(m)-1, i] = cossim
+                
+    #find out which meaning won on each row.
+    meaningcount = np.zeros([len(defsspace[k]), 1])
     
-#add in comparison (winner takes all?)
+    
+    for j in range (0, len(def_arr)):
+        #find over m rows which is largest
+        bigcos = -2.0
+        winner = -1;
+        #n=-1
+        for n in range(0,len(defsspace[k])):
+            curVal = arr[n, j]
+            if  curVal > bigcos:
+                bigcos = curVal;
+                winner = n;
+
+        meaningcount[winner] = meaningcount[winner]+1
+        
+    tot = sum(meaningcount)
+    
+    for i in range(len(meaningcount)):
+        meaningcount[i]=meaningcount[i]/tot*100;
+    
+    meaningcount = meaningcount.round();
+                                     
+    print(meaningcount)
+    
+    biggest = max(meaningcount)
+    
+    fout.write(k +"\t"+ str(round(biggest[0])) + "\t") 
+    
+    for i in range(len(meaningcount)):
+         fout.write(str(round(meaningcount[i][0]))+"\t")
+        
+    fout.write(str(tot[0]))
+    fout.write("\n")
+    
+    
+    
+    
+fout.close()
+    
+    
+    
+
+    
+    
+
 
 

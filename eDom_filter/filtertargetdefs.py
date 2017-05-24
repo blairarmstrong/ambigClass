@@ -24,6 +24,8 @@ sendictfile = '../sendict.p'
 defsspacedir='./defsspace/'
 defsspace_fn='defsspace.p'
 
+semdim= 300
+
 ###############################################################################
 
 fname = "./input/586AmbiguousWords_-mole-con-rack.txt"
@@ -115,8 +117,8 @@ for k in defsspace:
         
         tokens = wordpunct_tokenize(s);
                                    
-        #open 1, 400 array
-        arr = np.zeros([1, 400]);
+        #open array with dimensions of semdim, as set above
+        arr = np.zeros([1, semdim]);
         #load semspace vector
         
         if k=='bank':
