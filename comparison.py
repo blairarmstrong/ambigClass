@@ -29,6 +29,7 @@ def cosine_similarity(x,y):
 #Import dictionary vectors from pickled file (defsspace)
 defsspace = pickle.load(open("./eDom_filter/defsspace/defsspace.p", "rb"))
 outfile = "./output/meaningfreq.txt"
+correlationfile = "./output/correlation.txt"
     
 #Import wikipedia .mat files, convert txt to matrix arrays 
  
@@ -36,8 +37,11 @@ fout = open(outfile, "w")
 
 ds = {}
 ds['bank'] = defsspace['bank']
+ds['ear'] = defsspace['ear']
 ds['compound'] = defsspace['compound']
 defsspace = ds;
+
+bigdict = {}
 
 for k in defsspace:
     
@@ -81,6 +85,8 @@ for k in defsspace:
     
     biggest = max(meaningcount)
     
+    bigdict[k] = biggest;
+    
     fout.write(k +"\t"+ str(round(biggest[0])) + "\t") 
     
     for i in range(len(meaningcount)):
@@ -93,9 +99,67 @@ for k in defsspace:
     
     
 fout.close()
+
     
+#compute correlation for all words that we have found so far
+
+#load in eDom biggest file
+#read into dictionary line by line, only two columns, so use string.split to break into eleents
+# where first item
+
+eDom = {}
+
+for line in open('./input/eDom_biggest.txt'):
+    line = line.split()
+    eDom[line[0]] = int(line[1])
     
+edomUnion = {};
+
+for k in bigdict:
+    edomUnion[k] = eDom[k]
     
+allbiggest = np.zeros([2, len(edomUnion)])
+i=0;
+for k in bigdict:
+    allbiggest[0][i] = bigdict[k]
+    allbiggest[1][i] = edomUnion[k]
+    i=i+1
+
+#https://stackoverflow.com/questions/26714048/numpy-arrays-correlation
+def corr_pearson(x, y):
+
+    """
+    Compute Pearson correlation.
+    """
+
+    x_mean = np.mean(x, axis=0)
+    x_stddev = np.std(x, axis=0)
+
+    y_mean = np.mean(y, axis=0)
+    y_stddev = np.std(y, axis=0)
+
+    x1 = (x - x_mean)/x_stddev
+    y1 = (y - y_mean)/y_stddev
+
+    x1y1mult = x1 * y1
+
+    x1y1sum = np.sum(x1y1mult, axis=0)
+
+    corr = x1y1sum/20.
+
+    return corr
+
+    
+print(corr_pearson(allbiggest[0], allbiggest[1]))
+print('Correlation between eDom and our method:')
+print(np.corrcoef(allbiggest[0], allbiggest[1])[0][1].round(decimals=3))
+
+fc = open(correlationfile, "w")
+fc.write(str(np.corrcoef(allbiggest[0], allbiggest[1])[0][1].round(decimals=3)))
+fc.close()
+
+
+
 
     
     
