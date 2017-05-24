@@ -83,16 +83,8 @@ with open(mostfreqfile) as f2:
 for k in defs:
     for j in defs[k]:
         #clean up the file
-#        print(defs[k][j])
-
-        #replace the following with the code needed to clean up the definition
-        #in a similar way to the original clean up of the file.  Then, replace
-        #defs[k][j] with the cleaned output.  So, something like:
-                   
-        #load list of words to get critical windows for
-        #targetList = open(targFile).read().splitlines();
-
-        
+        #print(defs[k][j])
+    
         s = defs[k][j]
         
         tokens = wordpunct_tokenize(s);
@@ -106,8 +98,7 @@ for k in defs:
           w != k]
         
         raw = " ".join(words)
-        #
-        #
+
         defs[k][j] = raw;
 
 defsspace = copy.deepcopy(defs)
@@ -118,7 +109,7 @@ sendict = pickle.load(open(sendictfile, "rb"))
 for k in defsspace:
     for j in defsspace[k]:
         #clean up the file
-        print(defsspace[k][j])
+        #print(defsspace[k][j])
         
         s = defsspace[k][j]
         
@@ -128,14 +119,17 @@ for k in defsspace:
         arr = np.zeros([1, 400]);
         #load semspace vector
         
+        if k=='bank':
+            print(j)
         
         #define an zero vector
         for t in tokens:
+            if k=='bank':
+                print(t)
             #arr + semspace vector for t;
             arr = arr + sendict[t]
         defsspace[k][j] = arr;
             
             
 #pickle defs and sendict
-#pickle.dump(c,open(defs+sendict, 'wb'))  
 pickle.dump(defsspace,open(defsspacedir+defsspace_fn, 'wb'))  
