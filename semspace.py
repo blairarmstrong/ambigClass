@@ -10,13 +10,14 @@ Created on Mon May 22 13:23:50 2017
 
 from datetime import datetime
 startTime = datetime.now();
-                        
-import numpy as np
-import nltk
+
+#import numpy as np
+#import nltk
 import pickle
 
 #location of SUBTL word frequency data
 mostfreqfile = "./input/SUBTL_ge1.txt"
+glovefile = './semspace/glove.6B.300d.txt'
 
 #load list of words from frequency filtered list
 f2 = open(mostfreqfile,"r")
@@ -28,24 +29,24 @@ with open(mostfreqfile) as f2:
 
 sendict = {}
 masterlist= []
-for line in open("./semspace/Top200K-d400.vec"):
+for line in open(glovefile,'r',encoding="utf8"):
     listWords = line.split(" ")
     #print(listWords)
     cleanlist = []
     for word in listWords:
         if word != "":
-            cleanlist.append(word.strip()) 
-            
+            cleanlist.append(word.strip())
+
     a = cleanlist.pop(0).lower()
     if a.isalpha() and\
                 a not in set(nltk.corpus.stopwords.words('english')) and\
                             a in mostfreq:
-        
-        cleanlist = list(map(float, cleanlist))   
+
+        cleanlist = list(map(float, cleanlist))
         cleanlist = np.array(cleanlist, dtype = float)
 
         sendict[a] = cleanlist
-print (sendict)
+#print (sendict)
 pickle.dump(sendict, open("sendict.p", "wb"))
 
 print("\r\n")
