@@ -104,7 +104,6 @@ def createConcordances(fname):
     print("Current cleaned article length: " + str(lenCleanText))
 
     print("Percent of Tokens removed during cleaning")
-    print("Percent of Tokens removed during cleaning")
     if lenRawText > 0:
         print((lenRawText-lenCleanText)/lenRawText*100)
 
@@ -218,12 +217,17 @@ if __name__=='__main__':
     print("pool initialized")
     print("\r\n")
 
-    results = [pool.apply_async(createConcordances,args=(x,)) for x in fl]
-    print("Waiting to display results of async processing")
-    output = [p.get() for p in results]
+    #results = [pool.apply_async(createConcordances,args=(x,)) for x in fl]
+    
+    results = []
+    for x in fl:
+        createConcordances(x)
+        
+    #print("Waiting to display results of async processing")
+    #output = [p.get() for p in results]
 
-    print("Total number of words after cleaning, across all files:")
-    print(sum(output))
+    #print("Total number of words after cleaning, across all files:")
+    #print(sum(output))
 
     print("\r\n")
     print("task complete --- total time:")
@@ -249,9 +253,13 @@ if __name__=='__main__':
     print("pool initialized")
     print("\r\n")
 
-    results = [pool.apply_async(critWindows,args=(t,)) for t in targetList]
+    #results = [pool.apply_async(critWindows,args=(t,)) for t in targetList]
+    results =[]
+    for x in targetList:
+        results.append(critWindows(x))
+    output = results;   
     print("Waiting to display results of async processing")
-    output = [p.get() for p in results]
+    #output = [p.get() for p in results]
     print("Number of critical windows for each word")
     for e in output:
         for ke in e:

@@ -7,6 +7,12 @@ Created on Tue May 23 13:47:13 2017
 """
 
 #import nltk
+
+from datetime import datetime
+startTime = datetime.now();
+
+
+import scipy;
 import pickle
 import numpy as np
 #import scipy
@@ -32,6 +38,9 @@ defsspace = pickle.load(open("./eDom_filter/defsspace/defsspace.p", "rb"))
 outfile = "./output/meaningfreq.txt"
 correlationfile = "./output/correlation.txt"
 
+bigcompfile = './output/bigcomp.txt'
+
+
 #Import wikipedia .mat files, convert txt to matrix arrays
 
 fout = open(outfile, "w")
@@ -49,7 +58,9 @@ for k in defsspace:
     print(k);
     print(sofar)
     sofar = sofar+1;
-    if os.path.isfile('./critwindows/'+k+'.mat'):
+    if not os.path.isfile('./critwindows/'+k+'.mat'):
+        print(k +' did not have a .mat file associated with it')
+    else:
         f=open('./critwindows/'+k+'.mat','r')
         def_arr = np.genfromtxt('./critwindows/'+k+'.mat')
 
@@ -128,12 +139,11 @@ edomUnion = {};
 print("Printing bigdict")
 print(bigdict)
 
-for k in bigdict:
-    if k in eDom:
-        #Safety code because eDom does not contain every word in bigdict?
+for k in eDom:
+    if k in bigdict:
         edomUnion[k] = eDom[k]
     else:
-        print("ERROR: Missing following item in edom: "+k)
+        print("ERROR: Missing following item in bigdict, but present in edom: "+k)
 
 print("Number of observations in bigdict")
 print(len(bigdict))
@@ -143,54 +153,83 @@ print(len(bigdict))
 ###---> below used to be edomUnion instead of bigdict.
 allbiggest = np.zeros([2, len(bigdict)])
 i=0;
+
+wlist = [];
+
+
 for k in bigdict:
     if k in edomUnion:
+        #print('running loop')
         allbiggest[0][i] = bigdict[k]
         allbiggest[1][i] = edomUnion[k]
+        wlist.append([k,allbiggest[0][i],allbiggest[1][i]])
     else:
         print("ERROR: Missing following item in edomUnion: "+k)
     i=i+1
 
-#https://stackoverflow.com/questions/26714048/numpy-arrays-correlation
-def corr_pearson(x, y):
+##https://stackoverflow.com/questions/26714048/numpy-arrays-correlation
+#def corr_pearson(x, y):
+#    #### SOMETHING SEEMS WRONG WITH THIS METHOD...  USE NUMPY
+#    """
+#    Compute Pearson correlation.
+#    """
+#
+#    x_mean = np.mean(x, axis=0)
+#    x_stddev = np.std(x, axis=0)
+#
+#    y_mean = np.mean(y, axis=0)
+#    y_stddev = np.std(y, axis=0)
+#
+#    x1 = (x - x_mean)/x_stddev
+#    y1 = (y - y_mean)/y_stddev
+#
+#    x1y1mult = x1 * y1
+#
+#    x1y1sum = np.sum(x1y1mult, axis=0)
+#
+#    corr = x1y1sum/20.
+#
+#    return corr
 
-    """
-    Compute Pearson correlation.
-    """
 
-    x_mean = np.mean(x, axis=0)
-    x_stddev = np.std(x, axis=0)
+from scipy.stats.stats import pearsonr
 
-    y_mean = np.mean(y, axis=0)
-    y_stddev = np.std(y, axis=0)
-
-    x1 = (x - x_mean)/x_stddev
-    y1 = (y - y_mean)/y_stddev
-
-    x1y1mult = x1 * y1
-
-    x1y1sum = np.sum(x1y1mult, axis=0)
-
-    corr = x1y1sum/20.
-
-    return corr
-
-
-print(corr_pearson(allbiggest[0], allbiggest[1]))
+#print(corr_pearson(allbiggest[0], allbiggest[1]))
 print('Correlation between eDom and our method:')
-print(corr_pearson(allbiggest[0], allbiggest[1]))
+print(str(np.corrcoef(allbiggest[0], allbiggest[1])[0][1].round(3)))
+print('r value, p value')
+print(pearsonr(allbiggest[0],allbiggest[1]))
 #print(np.corrcoef(allbiggest[0], allbiggest[1])[0][1].round(decimals=3))
 
 
+
+
 fc = open(correlationfile, "w")
-fc.write(str(np.corrcoef(allbiggest[0], allbiggest[1])))
+fc.write(str(np.corrcoef(allbiggest[0], allbiggest[1])[0][1])+'\r\n')
+fc.write('r value, p value\r\n')
+fc.write(str(pearsonr(allbiggest[0],allbiggest[1])))
 fc.close()
 
+#write all biggest to a separate file that could allow you to run correlations
+#with biggest...  It would be nice to merge this with the data from the 
+#meaningfreq file above, but this was not done initially so as to facilitate
+#calculating information for any word, even those for which biggest data
+#might not be available (e.g., polysemes)
 
 
 
+ff = open(bigcompfile,'w');
+for item in wlist:
+    ff.write(item[0]+'\t'+str(int(item[1]))+'\t'+str(int(item[2]))+'\r\n')
+ff.close();
+
+    
 
 
+print("\r\n")
+print("task complete --- total time:")
+print(datetime.now()-startTime);
+print("\r\n")
 
 
 
