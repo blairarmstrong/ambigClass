@@ -1,7 +1,6 @@
 from datetime import datetime
 startTime = datetime.now();
 
-#from time import sleep
 import sys
 import os
 from os import listdir
@@ -11,10 +10,11 @@ import codecs
 import nltk
 import dill as pickle #need advanced pickling to pickle nltk lamba
 import pathos.multiprocessing as multiprocessing
+#should be able to use pathos to parallelize across server nodes if needed:
+   #file:///C:/Users/armstrong/Desktop/Distributed%20multiprocessing%20pool%20in%20Python%20-%20Stack%20Overflow.htm
 import numpy as np
 import socket
 from nltk import ConcordanceIndex
-#adapted from  http://stackoverflow.com/questions/22118136/nltk-find-contexts-of-size-2k-for-a-word
 
 #load common scripts located in single file to facilitate parallelization
 sys.path.append("./")
@@ -37,6 +37,7 @@ critWindowCountFile = 'critcounts.txt'
 
 semdim = 300
 
+#select number of cpus; run on 3 unless on neurocopy server
 if socket.gethostname() == 'neurocomp2':
     nProcs = 31;
 else:
@@ -44,6 +45,7 @@ else:
     
 ###############################################################################
 
+#adapted from  http://stackoverflow.com/questions/22118136/nltk-find-contexts-of-size-2k-for-a-word
 class ConcordanceIndex2(ConcordanceIndex):
     def create_concordance(self, word, token_width=11):
         "Returns a list of contexts for @word with a context <= @token_width"
@@ -63,14 +65,11 @@ def createConcordances(fname):
     f = codecs.open(wikidir+fname,"r","utf-8")
     print(fname)
     raw = f.read();
-    #print(fname)
     tokens = wordpunct_tokenize(raw);
     text = nltk.Text(tokens)
 
     lenRawText = len(text) # number of words in the cleaned dsocument.
     print("Current cleaned article length: " + str(lenRawText))
-
-    #print(text)
 
     #load list of words from frequency filtered list
     f2 = open(mostfreqfile,"r")
@@ -79,10 +78,6 @@ def createConcordances(fname):
     with open(mostfreqfile) as f2:
         for line in f2:
             mostfreq.append(line.strip())
-    ##print("number of words in frequency file")
-    #print(len(mostfreq))
-    #print(mostfreq)
-
 
     #clean up the processed text as desired
     #1a.  Convert text to lowercase, remove spaces around words
@@ -119,13 +114,12 @@ def createConcordances(fname):
     pickle.dump(fdist,open(freqdir+fname+".freq", 'wb'))
 
 
-    print("Completed processing one article")
+    print("Completed processingarticle: "+fname )
     return lenRawText #length of words in cleaned article
 
 
 
 def critWindows(t):
-#    #####print("running target: " + t)
     sendict = pickle.load(open(sendictfile, "rb"))
     fl = [f for f in listdir(concorddir) if isfile(join(concorddir, f))]
     i = 0;
@@ -141,11 +135,8 @@ def critWindows(t):
         #c.print_concordance(h)
         #print(l) #lists the concordance in memory
 
-        #if t == 'alley':
-        #    print('Alley files being created')
         f2 = open(critwindowdir+t+".txt","a")
-        #if t == 'alley':
-        #    print('alley.txt file created')
+
         f3 = open(critwindowdir+t+".mat","a")
         j=0;
         newvec = np.zeros([1, semdim]);
@@ -159,30 +150,15 @@ def critWindows(t):
                     if g in sendict:
                         newvec = newvec+sendict[g]
 
-            #print('\r\n')
-            #print(newvec)
-            #print(len(newvec[0]))
-            #print(newvec.shape())
-            #print('\r\n')
-
-
             newlist=newvec[0].tolist();
-            #print('\r\n')
-
-            #print(newlist)
-            #print('\r\n')
-            #print(len(newlist))
 
             newstr = ' '.join((f'{h:.6f}') for h in newlist)
             f3.write(newstr)
             f3.write('\r\n')
 
-
         f2.close();
         f3.close();
         i = i+j;
-
-
         
     return({t:i})
 
@@ -231,7 +207,7 @@ if __name__=='__main__':
     print("\r\n")
 
     #sleep(5) #wait 5 seconds before continuing to allow residual processes
-    #to clean up.
+    #to clean up; may be needed for some filesystem cleanup on some systems
     #########################################################################
     #clear critical window directory
     torm = os.listdir(critwindowdir)

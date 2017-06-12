@@ -1,3 +1,7 @@
+
+### NOTE: This version is a forked and adapted version of the original
+#code designed to run in parallel.  double check that behaviour is as expected.
+
 from datetime import datetime
 startTime = datetime.now();
 
@@ -41,7 +45,7 @@ if socket.gethostname() == 'neurocomp2':
     nProcs = 31;
 else:
     nProcs = 3;
-    
+
 ###############################################################################
 
 class ConcordanceIndex2(ConcordanceIndex):
@@ -182,7 +186,7 @@ def critWindows(t):
         i = i+j;
 
 
-        
+
     return({t:i})
 
 
@@ -218,11 +222,11 @@ if __name__=='__main__':
     print("\r\n")
 
     #results = [pool.apply_async(createConcordances,args=(x,)) for x in fl]
-    
+
     results = []
     for x in fl:
         createConcordances(x)
-        
+
     #print("Waiting to display results of async processing")
     #output = [p.get() for p in results]
 
@@ -257,7 +261,7 @@ if __name__=='__main__':
     results =[]
     for x in targetList:
         results.append(critWindows(x))
-    output = results;   
+    output = results;
     print("Waiting to display results of async processing")
     #output = [p.get() for p in results]
     print("Number of critical windows for each word")
@@ -270,7 +274,7 @@ if __name__=='__main__':
         if os.stat(critwindowdir+f).st_size == 0:
             print(f+ " should be deleted")
             os.remove(join(critwindowdir,f))
-    
+
     #remove files that have exactly one line in them.  They don't have enough
     #data to calculate a meaningful dominance score and they let you avoid
     #complications in comparison.py related to how you index a 1d vs 2d array
